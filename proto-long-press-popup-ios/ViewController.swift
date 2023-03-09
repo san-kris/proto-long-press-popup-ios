@@ -17,23 +17,40 @@ class ViewController: UIViewController {
     let iconsContainerView: UIView = {
         let containerView = UIView()
         containerView.backgroundColor = .white
+                
+        // set the padding between subview in stack view and around the view
+        // setting a constant to 8 pxl
+        let padding: CGFloat = 6
+        // set height of each icon
+        let iconHeight: CGFloat = 38
         
         /*
-        // adding subviews inside the view
-        let redView = UIView()
-        redView.backgroundColor = .red
-        let blueView = UIView()
-        blueView.backgroundColor = .blue
-        
-        // all the UIViews in an array
-        let arrangedViews = [redView, blueView]
-        */
-        
         // Using map function to generate views
         let arrangedViews = [UIColor.red, .green, .blue].map { (color) -> UIView in
             let newView = UIView()
             newView.backgroundColor = color
+            newView.layer.cornerRadius = iconHeight / 2
             return newView
+        }
+         */
+
+        
+        let iconImages = [UIImage(named: "icons8-american-football-96"),
+                          UIImage(named: "icons8-heart-suit-96"),
+                          UIImage(named: "icons8-jack-o-lantern-96"),
+                          UIImage(named: "icons8-party-popper-96"),
+                          UIImage(named: "icons8-skunk-96"),
+                          UIImage(named: "icons8-sunflower-96")
+        ]
+        
+        // Using map function to generate views
+        let arrangedViews = iconImages.map { (image) -> UIImageView in
+            let newImageView = UIImageView(image: image)
+            newImageView.backgroundColor = .gray
+            newImageView.layer.cornerRadius = iconHeight / 2
+            // Need to enable iteraction too perfrm hit testing
+            newImageView.isUserInteractionEnabled = true
+            return newImageView
         }
          
         // Add the array of Subviews to stack-view
@@ -44,11 +61,7 @@ class ViewController: UIViewController {
         // add the stackview as a subview
         containerView.addSubview(stackView)
         
-        // set the padding between subview in stack view and around the view
-        // setting a constant to 8 pxl
-        let padding: CGFloat = 8
-        // set height of each icon
-        let iconHeight: CGFloat = 50
+    
         
         // Adds space between subviews
         stackView.spacing = padding
@@ -63,6 +76,20 @@ class ViewController: UIViewController {
         // view is not displayed by default until the frame is set
         // the default X,Y of new view is 0,0 and width,height is 0,0
         containerView.frame = CGRect(x: 0, y: 0, width: widthWithPadding, height: iconHeight + (2 * padding))
+        // make rounded corner edges on the container view
+        containerView.layer.cornerRadius = containerView.frame.height / 2
+        
+        // Add shadow to container view
+        // set the shadoow color
+        containerView.layer.shadowColor = CGColor(gray: 0.5, alpha: 0.5)
+        // set shadow opacity. default value is 0, i.e. invisible
+        containerView.layer.shadowOpacity = 1
+        // set offset to show shadow below button. Default is shadow on top (0,-3)
+        containerView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        // set shadow radiouos, default value is 3
+        containerView.layer.shadowRadius = 3.0
+        
+        
         // specify the frame of the stackview
         stackView.frame = containerView.frame
         
@@ -76,7 +103,7 @@ class ViewController: UIViewController {
         imageView.frame = view.frame
         imageView.center = view.center
         imageView.contentMode = .scaleAspectFill
-        view.addSubview(imageView)
+//        view.addSubview(imageView)
         
         setupLongPressGesture()
     }
@@ -92,7 +119,53 @@ class ViewController: UIViewController {
             handleGestureBegan(gesture: gesture)
         } else if (gesture.state == .ended){
             print("Long press ended: \(Date())")
-            iconsContainerView.removeFromSuperview()
+            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {
+                // bring back the icons back inside stack view
+                let stackView = self.iconsContainerView.subviews.first
+                stackView?.subviews.forEach({ (view) in
+                    view.transform = .identity
+                })
+                // show icon trey dropping down
+                self.iconsContainerView.transform = self.iconsContainerView.transform.translatedBy(x: 0, y: self.iconsContainerView.frame.height)
+                self.iconsContainerView.alpha = 0
+                
+            } completion: { done in
+                self.iconsContainerView.removeFromSuperview()
+                print("icon animation reset complete")
+            }
+            
+        } else if (gesture.state == .changed){
+            handleGestureChange(gesture: gesture)
+        }
+            
+    }
+    
+    func handleGestureChange(gesture: UILongPressGestureRecognizer) -> Void {
+        // get the X,Y oof the touch relative to the container view specified
+        let hoverLocation = gesture.location(in: self.iconsContainerView)
+        print("Location of press: \(hoverLocation)")
+        
+        // If you want to hover outside
+        let fixedLocation = CGPoint(x: hoverLocation.x, y: self.iconsContainerView.frame.height / 2)
+        
+        // perform hit test on the point
+        if let hitTestView = iconsContainerView.hitTest(fixedLocation, with: nil){
+            // check if hittest view is a uiimage view
+            if hitTestView is UIImageView{
+                // animate the views
+                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {
+                    // bring back the icons back inside stack view
+                    let stackView = self.iconsContainerView.subviews.first
+                    stackView?.subviews.forEach({ (view) in
+                        view.transform = .identity
+                    })
+                    // change the Y value of the icon image
+                    hitTestView.transform = CGAffineTransform(translationX: 0, y: -50)
+                } completion: { done in
+                    print("icon animation complete")
+                }
+
+            }
         }
     }
     

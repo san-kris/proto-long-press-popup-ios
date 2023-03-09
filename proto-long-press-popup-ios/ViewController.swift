@@ -18,6 +18,7 @@ class ViewController: UIViewController {
         let containerView = UIView()
         containerView.backgroundColor = .white
         
+        /*
         // adding subviews inside the view
         let redView = UIView()
         redView.backgroundColor = .red
@@ -26,7 +27,15 @@ class ViewController: UIViewController {
         
         // all the UIViews in an array
         let arrangedViews = [redView, blueView]
+        */
         
+        // Using map function to generate views
+        let arrangedViews = [UIColor.red, .green, .blue].map { (color) -> UIView in
+            let newView = UIView()
+            newView.backgroundColor = color
+            return newView
+        }
+         
         // Add the array of Subviews to stack-view
         let stackView = UIStackView(arrangedSubviews: arrangedViews)
         // specify the distribution to Fill equally
@@ -37,14 +46,23 @@ class ViewController: UIViewController {
         
         // set the padding between subview in stack view and around the view
         // setting a constant to 8 pxl
-        let Padding: CGFloat = 8
-        stackView.spacing = Padding
-        stackView.layoutMargins = UIEdgeInsets(top: Padding, left: Padding, bottom: Padding, right: Padding)
+        let padding: CGFloat = 8
+        // set height of each icon
+        let iconHeight: CGFloat = 50
+        
+        // Adds space between subviews
+        stackView.spacing = padding
+        // creates a margin aroound subviews
+        stackView.layoutMargins = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
         stackView.isLayoutMarginsRelativeArrangement = true
+        
+        // capture number of subviews in the stack
+        let numOfIcons = CGFloat(arrangedViews.count)
+        let widthWithPadding = (numOfIcons * iconHeight) + ((numOfIcons + 1) * padding)
         
         // view is not displayed by default until the frame is set
         // the default X,Y of new view is 0,0 and width,height is 0,0
-        containerView.frame = CGRect(x: 0, y: 0, width: 200, height: 100)
+        containerView.frame = CGRect(x: 0, y: 0, width: widthWithPadding, height: iconHeight + (2 * padding))
         // specify the frame of the stackview
         stackView.frame = containerView.frame
         

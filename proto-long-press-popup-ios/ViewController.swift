@@ -16,10 +16,38 @@ class ViewController: UIViewController {
     
     let iconsContainerView: UIView = {
         let containerView = UIView()
-        containerView.backgroundColor = .red
+        containerView.backgroundColor = .white
+        
+        // adding subviews inside the view
+        let redView = UIView()
+        redView.backgroundColor = .red
+        let blueView = UIView()
+        blueView.backgroundColor = .blue
+        
+        // all the UIViews in an array
+        let arrangedViews = [redView, blueView]
+        
+        // Add the array of Subviews to stack-view
+        let stackView = UIStackView(arrangedSubviews: arrangedViews)
+        // specify the distribution to Fill equally
+        stackView.distribution = .fillEqually
+        
+        // add the stackview as a subview
+        containerView.addSubview(stackView)
+        
+        // set the padding between subview in stack view and around the view
+        // setting a constant to 8 pxl
+        let Padding: CGFloat = 8
+        stackView.spacing = Padding
+        stackView.layoutMargins = UIEdgeInsets(top: Padding, left: Padding, bottom: Padding, right: Padding)
+        stackView.isLayoutMarginsRelativeArrangement = true
+        
         // view is not displayed by default until the frame is set
         // the default X,Y of new view is 0,0 and width,height is 0,0
         containerView.frame = CGRect(x: 0, y: 0, width: 200, height: 100)
+        // specify the frame of the stackview
+        stackView.frame = containerView.frame
+        
         return containerView
     }()
     
@@ -56,7 +84,7 @@ class ViewController: UIViewController {
         // print("view bounds: \(iconsContainerVie.bounds)")
         
         // get the location of the click on screen
-        let pressedLocation = gesture.location(in: nil)
+        let pressedLocation = gesture.location(in: view)
         print("Location of press: \(pressedLocation)")
         
         
@@ -68,6 +96,7 @@ class ViewController: UIViewController {
         // Affine Transform helps capture the scale, rotate and translate changes to a view
         // only need to create Affine Transform if we are going to reuse later
         // For one oof use, we can use scaleBy, translateBy and rootateBy functions
+        // NOTE:- its important to remember, after transformation / animation. the X,Y coordinates of a view will not reset of original values
         iconsContainerView.transform = CGAffineTransform(translationX: newXCoordinate, y: pressedLocation.y)
         
         // animating fade in effect
